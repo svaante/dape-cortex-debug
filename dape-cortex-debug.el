@@ -125,25 +125,39 @@ Is an `dape-configs' `fn' function."
     :variableUseNaturalFormat t
     :pvtVersion "1.10.0"))
 
+(defvar dape-cortex-debug-config
+  `(cortex-debug-jlink
+    modes (c-mode c-ts-mode c++-mode c++-ts-mode)
+    ensure ,(lambda (config)
+              (unless (equal (dape-config-get config :servertype)
+                             "jlink")
+                (user-error "Only `:servertype' \"jlink\" are supported."))
+              ;; TODO Validate that JLinkGDBServer exists
+              ;; TODO Validate that arm-none-eabi-gdb and friends exists
+              (dape-ensure-command config)
+              (let ((dap-debug-server-path
+                     (car (plist-get config 'command-args))))
+                (unless (file-exists-p dap-debug-server-path)
+                  (user-error "File %S does not exist" dap-debug-server-path))))
+    command "node"
+    command-args (,(expand-file-name
+                    (file-name-concat
+                     dape-cortex-debug-directory
+                     "dist" "debugadapter.js")))
+    fn (,'--config-gdb-console ,'--config-defaults)
+    :type "cortex-debug"
+    :request "launch"
+    :servertype "jlink"
+    :device "cortex"
+    :cwd dape-cwd
+    :executable "a.out"
+    :runToEntryPoint :null
+    :gdbPath :null
+    :serverpath :null
+    :rtos :null))
+
 ;; Add jlink configuration to `dape-configs'
-(add-to-list 'dape-configs
-             `(cortex-debug-jlink
-               command "node"
-               command-args (,(expand-file-name
-                               (file-name-concat
-                                dape-cortex-debug-directory
-                                "dist" "debugadapter.js")))
-               fn (,'--config-gdb-console ,'--config-defaults)
-               :type "cortex-debug"
-               :request "launch"
-               :servertype "jlink"
-               :device "cortex"
-               :cwd dape-cwd
-               :executable "a.out"
-               :runToEntryPoint :null
-               :gdbPath :null
-               :serverpath :null
-               :rtos :null))
+(add-to-list 'dape-configs dape-cortex-debug-config)
 
 (provide 'dape-cortex-debug)
 ;;; dape-cortex-debug.el ends here
