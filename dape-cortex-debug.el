@@ -1,4 +1,4 @@
-;;; dape-cortex-debug.el -- Cortex debug adapter for config for dape -*- lexical-binding: t -*-
+;;; dape-cortex-debug.el -- Cortex debug adapter for dape -*- lexical-binding: t -*-
 
 ;; Author: Daniel Pettersson
 ;; Maintainer: Daniel Pettersson <daniel@dpettersson.net>
@@ -48,15 +48,22 @@
 ;;; Code:
 (require 'dape)
 
+(defgroup dape-cortex-debug nil
+  "Cortex debug adapter for `dape'."
+  :group 'dape)
+
 (defcustom dape-cortex-debug-directory
   (file-name-concat dape-adapter-dir "cortex-debug")
   "Directory of cortex debug extension.
-Expects `dape-cortex-debug-directory'/dist/debugadapter.js to exist."
-  :type 'directory)
+Directory containing cortex-debug extension."
+  :type 'directory
+  :group 'dape-cortex-debug)
 
 (defvar-local --gdb-console-process nil)
 
 (defun --config-gdb-console (config)
+  "Start tcp server and enrich CONFIG with server's port.
+Is an `dape-configs' `fn' function."
   (pcase-let* (((map (:gdbServerConsolePort port :autoport)) config)
                ;; HACK Use `dape-config-autoport' to get free port
                ;;      for console
@@ -87,6 +94,8 @@ Expects `dape-cortex-debug-directory'/dist/debugadapter.js to exist."
                  (process-contact --gdb-console-process :service)))))
 
 (defun --config-defaults (config)
+  "Enrich CONFIG with defaults required by cortex-debug.
+Is an `dape-configs' `fn' function."
   `(,@config
     :pvtAvoidPorts []
     :chainedConfigurations (:enabled nil)
@@ -116,6 +125,7 @@ Expects `dape-cortex-debug-directory'/dist/debugadapter.js to exist."
     :variableUseNaturalFormat t
     :pvtVersion "1.10.0"))
 
+;; Add jlink configuration to `dape-configs'
 (add-to-list 'dape-configs
              `(cortex-debug-jlink
                command "node"
@@ -135,6 +145,7 @@ Expects `dape-cortex-debug-directory'/dist/debugadapter.js to exist."
                :serverpath :null
                :rtos :null))
 
+(provide 'dape-cortex-debug)
 ;;; dape-cortex-debug.el ends here
 
 ;; Local Variables:
