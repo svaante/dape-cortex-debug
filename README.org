@@ -1,0 +1,22 @@
+#+title: cortex-debug adapter for dape
+#+author: Daniel Pettersson
+#+language: en
+
+This package provides a =dape-configs= entry for cortex-debug adapter.  =cortex-debug= is an adapter for debugging embedded devices.  Currently only jlink debugging is supported, that is not an limitation of =cortex-debug=, but of this package.
+
+The main reason for this not being included in `dape' proper is that cortex-debug might be the quirkiest of adapters.  To be able to debug with jlink cortex-debug requires an running tcp socket to send gdb console output to, if this service is not available the adapter will crash on startup. See =dape-cortex-debug--config-gdb-console=.
+
+This package is not package as part of =dape= as it will hopefully be deprecated as soon as arm-none-eabi is built with GDB version 14.1.  This might be re-evaluated at a later point.
+
+See [[https://github.com/Marus/cortex-debug]] for adapter releases and information. See =dape-cortex-debug-directory= for installation.
+
+* Usage
+#+begin_src emacs-lisp
+  (use-package dape-cortex-debug
+    :after dape
+    :straight (dape-cortex-debug :type git
+                                 :host github
+                                 :repo "svaante/dape-cortex-debug")
+    :init
+    (require 'dape-cortex-debug))
+#+end_src
