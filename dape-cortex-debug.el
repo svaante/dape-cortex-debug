@@ -4,6 +4,7 @@
 ;; Maintainer: Daniel Pettersson <daniel@dpettersson.net>
 ;; Created: 2023
 ;; Homepage: https://github.com/svaante/dape-cortex-debug
+;; Package-Requires: ((dape "0.14.0"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -74,7 +75,7 @@ Is an `dape-configs' `fn' function."
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer))
-      (shell-mode)
+      (dape-shell-mode)
       (unless (and (processp --gdb-console-process)
                    (process-live-p --gdb-console-process))
         (setq --gdb-console-process
